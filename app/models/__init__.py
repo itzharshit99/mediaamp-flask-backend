@@ -1,4 +1,4 @@
-from app import db  # Import db from app/__init__.py
+from app import db  
 from enum import Enum
 from datetime import datetime
 
@@ -13,7 +13,6 @@ class Priority(Enum):
     CRITICAL = 'critical'
     @classmethod
     def _missing_(cls, value):
-        # Allow case-insensitive lookup
         value = value.upper()
         for member in cls:
             if member.value == value:

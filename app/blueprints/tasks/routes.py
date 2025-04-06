@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, get_jwt
 from app.models import TaskManager, TaskLogger, User, Priority, Role
-from app import db  # Import db from app/__init__.py
+from app import db 
 from pydantic import BaseModel, ValidationError
 from datetime import datetime
 import csv
@@ -9,7 +9,6 @@ from io import StringIO
 from typing import Optional
 tasks_bp = Blueprint('tasks', __name__)
 
-# Pydantic models
 class TaskCreate(BaseModel):
     task_name: str
     description: Optional[str]
@@ -60,7 +59,6 @@ def login():
         db.session.add(user)
         db.session.commit()
     
-    # Convert user.id to string
     token = create_access_token(identity=str(user.id))
     return jsonify({
         'message': 'User created/logged in',
@@ -68,7 +66,6 @@ def login():
         'token': token
     }), 200
 
-# Other endpoints remain the same...
 @tasks_bp.route('/upload-csv', methods=['POST'])
 @jwt_required()
 def upload_csv():
@@ -107,17 +104,16 @@ def upload_csv():
                 priority_value = row['priority'].lower()
                 print(f"Priority from CSV: {priority_value}")
                 
-                # Validate priority
-                valid_priorities = {p.value: p for p in Priority}  # Map of value to enum
+                valid_priorities = {p.value: p for p in Priority}  
                 if priority_value not in valid_priorities:
                     raise ValueError(f"Invalid priority '{priority_value}'. Valid options: {list(valid_priorities.keys())}")
                 
-                # Use enum object directly
+                
                 task = TaskManager(
                     task_name=row['task_name'],
                     description=row['description'],
                     status=row['status'].upper() == 'TRUE',
-                    priority=valid_priorities[priority_value],  # Yeh sahi enum object dega
+                    priority=valid_priorities[priority_value],  
                     created_at=created_at,
                     user_id=user.id
                 )
@@ -188,14 +184,14 @@ def create_task():
         data = TaskCreate(**request.json)
         user_id = get_jwt_identity()
         
-        # Convert priority to uppercase once and reuse
+        
         priority = Priority[data.priority.upper()]
         
         task = TaskManager(
             task_name=data.task_name,
             description=data.description,
             status=data.status,
-            priority=priority,  # Using the already converted priority
+            priority=priority,  
             user_id=user_id
         )
         db.session.add(task)
@@ -204,7 +200,7 @@ def create_task():
         log = TaskLogger(
             task_id=task.id,
             status=data.status,
-            priority=priority,  # Using the same priority here
+            priority=priority,  
             changed_by=user_id
         )
         db.session.add(log)
@@ -224,12 +220,11 @@ def update_task(task_id):
             return jsonify({'error': 'Invalid token'}), 401
         
         print(f"Current User ID from Token: {current_user_id} (Type: {type(current_user_id)})")
-        print(f"Full JWT Payload: {get_jwt()}")  # This will now work with the import
+        print(f"Full JWT Payload: {get_jwt()}")  
         
         task = TaskManager.query.get_or_404(task_id)
         print(f"Task Owner ID: {task.user_id} (Type: {type(task.user_id)})")
         
-        # Assuming task.user_id is an integer in the database
         if int(task.user_id) != int(current_user_id):
             return jsonify({
                 'error': 'Unauthorized',
@@ -249,7 +244,6 @@ def update_task(task_id):
         for field, value in fields_to_update.items():
             if value is not None:
                 if field == 'priority':
-                    # Ensure consistent case handling with Priority enum
                     setattr(task, field, Priority[value.upper()])
                 else:
                     setattr(task, field, value)
