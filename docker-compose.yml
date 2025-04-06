@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=sqlite:////app/data.db  # Or your DB connection string
+    volumes:
+      - ./data:/app/data  # For persistent SQLite storage

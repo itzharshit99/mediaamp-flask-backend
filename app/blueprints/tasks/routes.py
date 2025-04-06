@@ -6,21 +6,21 @@ from pydantic import BaseModel, ValidationError
 from datetime import datetime
 import csv
 from io import StringIO
-
+from typing import Optional
 tasks_bp = Blueprint('tasks', __name__)
 
 # Pydantic models
 class TaskCreate(BaseModel):
     task_name: str
-    description: str | None
+    description: Optional[str]
     status: bool
     priority: str
 
 class TaskUpdate(BaseModel):
-    task_name: str | None
-    description: str | None
-    status: bool | None
-    priority: str | None
+    task_name: Optional[str]
+    description:Optional[str]
+    status: Optional[bool]
+    priority: Optional[str]
 
 def role_required(role):
     def decorator(f):
