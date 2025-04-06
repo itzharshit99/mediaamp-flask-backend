@@ -124,3 +124,14 @@ docker ps
 
 ## User table
 ![Screenshot 2025-04-06 164406](https://github.com/user-attachments/assets/d450559a-5d22-4d26-97db-4df4ddb6a4c6)
+
+
+## 🤝 Contributing  
+1. Fork the repo  
+2. Create a branch (`git checkout -b feature/awesome-feature`)  
+3. Commit changes (`git commit -m 'Add feature'`)  
+4. Push (`git push origin feature/awesome-feature`)  
+5. Open a PR!  
+
+## 📜 License  
+MIT © Harshit Jain
