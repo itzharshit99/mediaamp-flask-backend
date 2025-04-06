@@ -97,6 +97,30 @@ docker-compose down
 
 # View running containers
 docker ps
+```
 
+## API Testing Results:
+## User Login
+![Screenshot 2025-04-06 162931](https://github.com/user-attachments/assets/a940984d-30ba-4258-a4a4-bdd8b6174bb7)
 
+## Upload CSV
+![Screenshot 2025-04-06 163355](https://github.com/user-attachments/assets/c68ee6c5-4243-4d59-a1a0-90b9fe9edd3c)
+![Screenshot 2025-04-06 163445](https://github.com/user-attachments/assets/9d65afa8-02e8-47e1-b627-2a00bd1940f9)
 
+## All Tasks Fetched from database
+![Screenshot 2025-04-06 163539](https://github.com/user-attachments/assets/20f04d67-5c5f-4b11-9a10-d91c0e9a01d6)
+
+## Tasks getting Fetched on the basis of their id from database
+![Screenshot 2025-04-06 163637](https://github.com/user-attachments/assets/45052088-3ba8-4778-8ca8-ea2f7b709c9e)
+
+## Adding task staticly
+![Screenshot 2025-04-06 163916](https://github.com/user-attachments/assets/5fbc0aed-9ac6-44c0-a0ed-d80162a35162)
+
+## Updating the task
+![Screenshot 2025-04-06 164011](https://github.com/user-attachments/assets/d9446ae7-9631-4f59-9c98-034c09c43036)
+
+## Soft deletion of task
+![Screenshot 2025-04-06 164102](https://github.com/user-attachments/assets/88d39843-3e51-4773-9955-f8ca96f45b16)
+
+## User table
+![Screenshot 2025-04-06 164406](https://github.com/user-attachments/assets/d450559a-5d22-4d26-97db-4df4ddb6a4c6)
