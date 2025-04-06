@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, get_jwt
 from app.models import TaskManager, TaskLogger, User, Priority, Role
 from app import db  # Import db from app/__init__.py
 from pydantic import BaseModel, ValidationError
@@ -218,43 +218,68 @@ def create_task():
 @tasks_bp.route('/task/<int:task_id>', methods=['PUT'])
 @jwt_required()
 def update_task(task_id):
-    task = TaskManager.query.get_or_404(task_id)
-    user_id = get_jwt_identity()
-    if task.user_id != user_id:
-        return jsonify({'error': 'Unauthorized'}), 403
-    
     try:
+        current_user_id = get_jwt_identity()
+        if not current_user_id:
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        print(f"Current User ID from Token: {current_user_id} (Type: {type(current_user_id)})")
+        print(f"Full JWT Payload: {get_jwt()}")  # This will now work with the import
+        
+        task = TaskManager.query.get_or_404(task_id)
+        print(f"Task Owner ID: {task.user_id} (Type: {type(task.user_id)})")
+        
+        # Assuming task.user_id is an integer in the database
+        if int(task.user_id) != int(current_user_id):
+            return jsonify({
+                'error': 'Unauthorized',
+                'message': f'User {current_user_id} cannot update task owned by {task.user_id}'
+            }), 403
+        
         data = TaskUpdate(**request.json)
         updated = False
         
-        if data.task_name is not None:
-            task.task_name = data.task_name
-            updated = True
-        if data.description is not None:
-            task.description = data.description
-            updated = True
-        if data.status is not None:
-            task.status = data.status
-            updated = True
-        if data.priority is not None:
-            task.priority = Priority[data.priority.lower()]
-            updated = True
+        fields_to_update = {
+            'task_name': data.task_name,
+            'description': data.description,
+            'status': data.status,
+            'priority': data.priority
+        }
+        
+        for field, value in fields_to_update.items():
+            if value is not None:
+                if field == 'priority':
+                    # Ensure consistent case handling with Priority enum
+                    setattr(task, field, Priority[value.upper()])
+                else:
+                    setattr(task, field, value)
+                updated = True
         
         if updated:
             log = TaskLogger(
                 task_id=task_id,
                 status=task.status,
                 priority=task.priority,
-                changed_by=user_id
+                changed_by=current_user_id
             )
             db.session.add(log)
-        
         db.session.commit()
-        return jsonify({'message': 'Task updated'})
+        return jsonify({
+            'message': 'Task updated successfully' if updated else 'No changes detected'
+        }), 200
+        
     except ValidationError as e:
-        return jsonify(e.errors()), 400
-    except ValueError:
-        return jsonify({'error': 'Invalid priority value'}), 400
+        db.session.rollback()
+        return jsonify({'error': 'Validation failed', 'details': e.errors()}), 400
+    except KeyError as e:
+        db.session.rollback()
+        return jsonify({'error': f'Invalid priority value: {str(e)}'}), 400
+    except ValueError as e:
+        db.session.rollback()
+        return jsonify({'error': f'Invalid user ID format: {str(e)}'}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Unexpected error: {str(e)}'}), 500
 
 @tasks_bp.route('/task/<int:task_id>', methods=['DELETE'])
 @jwt_required()
