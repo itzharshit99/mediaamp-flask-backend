@@ -1,8 +1,7 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
@@ -13,8 +12,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Set environment variables
-ENV FLASK_APP=app/__init__.py
-ENV FLASK_ENV=production
-
+# For web service
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:create_app()"]
