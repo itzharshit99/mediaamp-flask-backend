@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 
-# Single db instance
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
@@ -19,12 +18,10 @@ def create_app(config_name='development'):
         'pool_recycle': 1800
     }
     
-    # Initialize extensions with app
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    
-    # Register blueprints
+
     from app.blueprints.tasks.routes import tasks_bp
     app.register_blueprint(tasks_bp, url_prefix='/api')
     
